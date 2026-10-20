@@ -4,6 +4,8 @@ Chrome extension (Manifest V3, built with WXT) that bookmarks a Claude prompt an
 
 ![Demo of a bookmark extension being used on claude.ai](demo/demo.gif)
 
+[![Architecture diagram of limiajayi/prompts-bookmark-extension](https://gitdiagram.com/limiajayi/prompts-bookmark-extension/diagram.png)](https://gitdiagram.com/limiajayi/prompts-bookmark-extension?utm_source=readme&utm_medium=picture)
+
 ## Run it
 
 ```bash
