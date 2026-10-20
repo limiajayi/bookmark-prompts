@@ -15,6 +15,15 @@ pnpm build
 
 Then open `chrome://extensions`, switch on **Developer mode**, click **Load unpacked** and choose `.output/chrome-mv3`.
 
+## Firefox Build
+
+```bash
+pnpm install
+pnpm build:firefox
+```
+
+Then open `about:debugging#/runtime/this-firefox`, click on "Load Temporary Add-on". Then open `.output/firefox-mv2/manifest.json`
+
 For hot reload while developing, run `pnpm dev` (WXT opens a Chrome window with the extension loaded; you'll need to sign in to claude.ai there).
 
 Other scripts: `pnpm test`, `pnpm compile` (type-check).
@@ -24,6 +33,7 @@ Other scripts: `pnpm test`, `pnpm compile` (type-check).
 | File | Job |
 |---|---|
 | `utils/selectors.ts` | Every claude.ai selector. If the extension breaks after a Claude update, fix it here. |
+| `utils/diagnose.ts` | Works out how many user and assistant messages they are and reports in console if the extension breaks |
 | `utils/extract.ts` | Finds the prompt above a response and cleans the text |
 | `utils/settle.ts` | Detects when a response has finished streaming |
 | `entrypoints/content.ts` | Adds the Bookmark button to each response |
