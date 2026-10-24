@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { getChatId, getPairForResponse } from "../utils/extract";
+import { getChatId, getMessages, getPairForResponse } from "../utils/extract";
 import { hashPair } from "../utils/hash";
 import { filterBookmarks } from "../utils/search";
 import { whenFinished } from "../utils/settle";
@@ -46,131 +46,172 @@ for repeatable processes?</p></div></div>
 `;
 
 beforeEach(() => {
-	document.body.innerHTML = chat("just now");
+    document.body.innerHTML = chat("just now");
 });
 
 describe("getPairForResponse", () => {
-	it("ignores the 'Reading a page' status, so a thinking message has no pair yet", () => {
-		expect(getPairForResponse(document.getElementById("thinking")!)).toBeNull();
-	});
+    it("ignores the 'Reading a page' status, so a thinking message has no pair yet", () => {
+        expect(
+            getPairForResponse(document.getElementById("thinking")!),
+        ).toBeNull();
+    });
 
-	it("returns clean text without timestamps, buttons or hidden labels", () => {
-		const pair = getPairForResponse(document.getElementById("r1")!);
-		expect(pair).toEqual({
-			prompt: "So they'd be used\nfor repeatable processes?",
-			response: [
-				"Yes, exactly.",
-				"",
-				"A good test:",
-				"",
-				"- Can you write it as a checklist?",
-				"- Is it repeatable?",
-				"",
-				"1. First",
-				"2. Second",
-			].join("\n"),
-		});
-	});
+    it("returns clean text without timestamps, buttons or hidden labels", () => {
+        const pair = getPairForResponse(document.getElementById("r1")!);
+        expect(pair).toEqual({
+            prompt: "So they'd be used\nfor repeatable processes?",
+            response: [
+                "Yes, exactly.",
+                "",
+                "A good test:",
+                "",
+                "- Can you write it as a checklist?",
+                "- Is it repeatable?",
+                "",
+                "1. First",
+                "2. Second",
+            ].join("\n"),
+        });
+    });
 
-	it("gives the same text however old the message is", () => {
-		const before = getPairForResponse(document.getElementById("r1")!);
-		document.body.innerHTML = chat("50 minutes ago");
-		const after = getPairForResponse(document.getElementById("r1")!);
-		expect(after).toEqual(before);
-	});
+    it("gives the same text however old the message is", () => {
+        const before = getPairForResponse(document.getElementById("r1")!);
+        document.body.innerHTML = chat("50 minutes ago");
+        const after = getPairForResponse(document.getElementById("r1")!);
+        expect(after).toEqual(before);
+    });
 
-	it("returns null when no prompt is rendered above the response", () => {
-		expect(getPairForResponse(document.getElementById("orphan")!)).toBeNull();
-	});
+    it("returns null when no prompt is rendered above the response", () => {
+        expect(
+            getPairForResponse(document.getElementById("orphan")!),
+        ).toBeNull();
+    });
 
-	it("returns null while the response is still empty", () => {
-		expect(getPairForResponse(document.getElementById("empty")!)).toBeNull();
-	});
+    it("returns null while the response is still empty", () => {
+        expect(
+            getPairForResponse(document.getElementById("empty")!),
+        ).toBeNull();
+    });
 });
 
 describe("readText", () => {
-	it("keeps a list marker on the same line as a paragraph inside the item", () => {
-		document.body.innerHTML =
-			"<div id='x'><ul><li><p>One</p></li><li><p>Two</p></li></ul></div>";
-		expect(readText(document.getElementById("x")!)).toBe("- One\n\n- Two");
-	});
+    it("keeps a list marker on the same line as a paragraph inside the item", () => {
+        document.body.innerHTML =
+            "<div id='x'><ul><li><p>One</p></li><li><p>Two</p></li></ul></div>";
+        expect(readText(document.getElementById("x")!)).toBe("- One\n\n- Two");
+    });
 
-	it("keeps line breaks inside code blocks", () => {
-		document.body.innerHTML =
-			"<div id='x'><p>Run:</p><pre><code>a\n  b</code></pre></div>";
-		expect(readText(document.getElementById("x")!)).toBe("Run:\n\na\n  b");
-	});
+    it("keeps line breaks inside code blocks", () => {
+        document.body.innerHTML =
+            "<div id='x'><p>Run:</p><pre><code>a\n  b</code></pre></div>";
+        expect(readText(document.getElementById("x")!)).toBe("Run:\n\na\n  b");
+    });
 });
 
 describe("getChatId", () => {
-	it("reads the UUID from a chat URL", () => {
-		expect(getChatId("/chat/123e4567-e89b-12d3-a456-426614174000")).toBe(
-			"123e4567-e89b-12d3-a456-426614174000",
-		);
-	});
+    it("reads the UUID from a chat URL", () => {
+        expect(getChatId("/chat/123e4567-e89b-12d3-a456-426614174000")).toBe(
+            "123e4567-e89b-12d3-a456-426614174000",
+        );
+    });
 
-	it("returns null outside a chat", () => {
-		expect(getChatId("/new")).toBeNull();
-	});
+    it("returns null outside a chat", () => {
+        expect(getChatId("/new")).toBeNull();
+    });
 });
 
 describe("hashPair", () => {
-	it("is stable for the same pair and differs for different pairs", async () => {
-		const a = await hashPair("q", "a");
-		expect(a).toBe(await hashPair("q", "a"));
-		expect(a).not.toBe(await hashPair("q", "b"));
-		expect(a).toHaveLength(64);
-	});
+    it("is stable for the same pair and differs for different pairs", async () => {
+        const a = await hashPair("q", "a");
+        expect(a).toBe(await hashPair("q", "a"));
+        expect(a).not.toBe(await hashPair("q", "b"));
+        expect(a).toHaveLength(64);
+    });
 
-	it("doesn't confuse where the prompt ends and the response begins", async () => {
-		expect(await hashPair("ab", "c")).not.toBe(await hashPair("a", "bc"));
-	});
+    it("doesn't confuse where the prompt ends and the response begins", async () => {
+        expect(await hashPair("ab", "c")).not.toBe(await hashPair("a", "bc"));
+    });
 });
 
 describe("filterBookmarks", () => {
-	const make = (
-		id: string,
-		prompt: string,
-		response: string,
-		savedAt: number,
-	): Bookmark => ({
-		id,
-		chatId: "c",
-		chatUrl: "https://claude.ai/chat/c",
-		prompt,
-		response,
-		savedAt,
-	});
-	const items = [
-		make("1", "Explain closures", "A closure captures variables.", 1),
-		make("2", "Centre a div", "Use flexbox.", 2),
-	];
+    const make = (
+        id: string,
+        prompt: string,
+        response: string,
+        savedAt: number,
+    ): Bookmark => ({
+        id,
+        chatId: "c",
+        chatUrl: "https://claude.ai/chat/c",
+        prompt,
+        response,
+        savedAt,
+    });
+    const items = [
+        make("1", "Explain closures", "A closure captures variables.", 1),
+        make("2", "Centre a div", "Use flexbox.", 2),
+    ];
 
-	it("matches the prompt or the response, ignoring case", () => {
-		expect(filterBookmarks(items, "CLOSURES").map((b) => b.id)).toEqual(["1"]);
-		expect(filterBookmarks(items, "flexbox").map((b) => b.id)).toEqual(["2"]);
-	});
+    it("matches the prompt or the response, ignoring case", () => {
+        expect(filterBookmarks(items, "CLOSURES").map((b) => b.id)).toEqual([
+            "1",
+        ]);
+        expect(filterBookmarks(items, "flexbox").map((b) => b.id)).toEqual([
+            "2",
+        ]);
+    });
 
-	it("returns everything, newest first, for an empty query", () => {
-		expect(filterBookmarks(items, "  ").map((b) => b.id)).toEqual(["2", "1"]);
-	});
+    it("returns everything, newest first, for an empty query", () => {
+        expect(filterBookmarks(items, "  ").map((b) => b.id)).toEqual([
+            "2",
+            "1",
+        ]);
+    });
 });
 
 describe("whenFinished", () => {
-	it("waits for data-is-streaming to become false", async () => {
-		const el = document.getElementById("thinking")!;
-		let finished = false;
-		const done = whenFinished(el).then(() => (finished = true));
+    it("waits for data-is-streaming to become false", async () => {
+        const el = document.getElementById("thinking")!;
+        let finished = false;
+        const done = whenFinished(el).then(() => (finished = true));
 
-		await new Promise((r) => setTimeout(r, 20));
-		expect(finished).toBe(false);
+        await new Promise((r) => setTimeout(r, 20));
+        expect(finished).toBe(false);
 
-		el.setAttribute("data-is-streaming", "false");
-		await done;
-		expect(finished).toBe(true);
-	});
+        el.setAttribute("data-is-streaming", "false");
+        await done;
+        expect(finished).toBe(true);
+    });
 
-	it("resolves straight away for a message that has already finished", async () => {
-		await whenFinished(document.getElementById("r1")!);
-	});
+    it("resolves straight away for a message that has already finished", async () => {
+        await whenFinished(document.getElementById("r1")!);
+    });
+});
+
+describe("nested matches of the same message", () => {
+    const assistant =
+        '<div data-cds="AssistantMessage" data-testid="assistant-message" id="r"><p>Hello</p></div>';
+    const plain = `<div data-cds="UserMessage"><div class="cds-user-message-body"><p>Hi</p></div></div>${assistant}`;
+    const testidInside = `<div data-cds="UserMessage"><div data-testid="user-message"><div class="cds-user-message-body"><p>Hi</p></div></div></div>${assistant}`;
+    const testidOutside = `<div data-testid="user-message"><div data-cds="UserMessage"><div class="cds-user-message-body"><p>Hi</p></div></div></div>${assistant}`;
+
+    it.each([
+        ["no testid wrapper", plain],
+        ["testid element inside the cds row", testidInside],
+        ["testid element around the cds row", testidOutside],
+    ])("counts one message per message (%s)", (_name, html) => {
+        document.body.innerHTML = html;
+        expect(getMessages()).toHaveLength(2);
+    });
+
+    it("reads the same pair whichever way the attributes are nested", () => {
+        const read = (html: string) => {
+            document.body.innerHTML = html;
+            return getPairForResponse(document.getElementById("r")!);
+        };
+        const expected = { prompt: "Hi", response: "Hello" };
+        expect(read(plain)).toEqual(expected);
+        expect(read(testidInside)).toEqual(expected);
+        expect(read(testidOutside)).toEqual(expected);
+    });
 });

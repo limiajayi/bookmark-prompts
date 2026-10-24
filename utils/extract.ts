@@ -13,13 +13,23 @@ export function getChatId(pathname: string = location.pathname): string | null {
     return match?.[1] ?? null;
 }
 
+/** All messages in page order, keeping only the outermost match of each
+ * Different selectors can match different elements of the same message (eg a row and an element nested inside it)
+ * without this, one message would be counted twice and th "message above response logic" would be unreliable
+ */
+export function getMessages(): Element[] {
+    return [...document.querySelectorAll(SELECTORS.anyMessage)].filter(
+        (el) => !el.parentElement?.closest(SELECTORS.anyMessage),
+    );
+}
+
 /**
  * Given an assistant message element, returns it together with the user
  * message directly above it. Returns null if we can't find a valid pair
  * (for example, the prompt isn't rendered because the page unloaded it).
  */
 export function getPairForResponse(responseEl: Element): Pair | null {
-    const messages = [...document.querySelectorAll(SELECTORS.anyMessage)];
+    const messages = getMessages();
     const index = messages.indexOf(responseEl);
     if (index < 1) return null;
 
@@ -35,11 +45,6 @@ export function getPairForResponse(responseEl: Element): Pair | null {
     if (!prompt || !response) return null;
 
     return { prompt, response };
-}
-
-/** Quick check that our selectors still match something on the page. */
-export function selectorsLookHealthy(): boolean {
-    return document.querySelector(SELECTORS.anyMessage) !== null;
 }
 
 /**
