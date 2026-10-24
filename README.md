@@ -6,6 +6,10 @@ Chrome extension (Manifest V3, built with WXT) that bookmarks a Claude prompt an
 
 [![Architecture diagram of limiajayi/prompts-bookmark-extension](https://gitdiagram.com/limiajayi/prompts-bookmark-extension/diagram.png)](https://gitdiagram.com/limiajayi/prompts-bookmark-extension?utm_source=readme&utm_medium=picture)
 
+## Privacy Policy
+
+The privacy policy can be found here: [privacy policy](https://limiajayi.github.io/prompts-bookmark-extension/privacy-policy)
+
 ## Run it
 
 ```bash
@@ -13,7 +17,9 @@ pnpm install
 pnpm build
 ```
 
-Then open `chrome://extensions`, switch on **Developer mode**, click **Load unpacked** and choose `.output/chrome-mv3`.
+- Open [chrome://extensions](chrome://extensions)
+- Switch on **Developer mode**
+- Click **Load unpacked** and choose `.output/chrome-mv3`.
 
 ## Firefox Build
 
@@ -22,7 +28,9 @@ pnpm install
 pnpm build:firefox
 ```
 
-Then open `about:debugging#/runtime/this-firefox`, click on "Load Temporary Add-on". Then open `.output/firefox-mv2/manifest.json`
+- Open [about:debugging#/runtime/this-firefox](about:debugging#/runtime/this-firefox)
+- Click on **Load Temporary Add-on**
+- Open `.output/firefox-mv2/manifest.json`
 
 For hot reload while developing, run `pnpm dev` (WXT opens a Chrome window with the extension loaded; you'll need to sign in to claude.ai there).
 
