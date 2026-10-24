@@ -2,26 +2,94 @@ import type { SecretMatch } from "./secrets";
 
 export type SecretChoice = "save" | "redact" | "cancel";
 
+// The popup's style.css variables aren't available on claude.ai, so the palette is
+// copied here. :host sets the variables inside the shadow root.
+const STYLES = `
+  :host {
+    --paper: #f5f7fa;
+    --surface: #ffffff;
+    --ink: #18202b;
+    --muted: #566274;
+    --rule: #d8dee7;
+    --accent: #0f766e;
+    --danger: #b42318;
+    color-scheme: light dark;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :host {
+      --paper: #12171e;
+      --surface: #1a212b;
+      --ink: #e6eaf0;
+      --muted: #9aa6b6;
+      --rule: #2b3441;
+      --accent: #4fd1c5;
+      --danger: #f97066;
+    }
+  }
+
+  .backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2147483647;
+  }
+
+  .card {
+    background: var(--surface);
+    color: var(--ink);
+    font: 13px/1.45 system-ui, sans-serif;
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    padding: 16px;
+    width: min(400px, 90vw);
+  }
+
+  h2 { margin: 0 0 8px; font-size: 15px; font-weight: 600; }
+  p { margin: 0 0 8px; color: var(--muted); }
+
+  ul {
+    list-style: none;
+    margin: 8px 0 14px;
+    padding: 0;
+    display: grid;
+    gap: 6px;
+  }
+
+  li { color: var(--muted); font-size: 12px; }
+  code { font: 12px ui-monospace, monospace; color: var(--ink); }
+
+  .actions { display: flex; gap: 6px; justify-content: flex-end; }
+
+  button {
+    font: 500 12px/1 system-ui, sans-serif;
+    padding: 6px 10px;
+    margin-top: 8px;
+    border-radius: 6px;
+    border: 1px solid #8a94a6;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+  }
+  button:hover:not(:disabled) { background: rgba(127, 127, 127, 0.15); }
+  button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  button:disabled { opacity: 0.5; cursor: default; }
+
+  button.danger { border-color: var(--danger); color: var(--danger); }
+  button.danger:hover:not(:disabled) { background: rgba(180, 35, 24, 0.12); }
+`;
+
 export function askAboutSecrets(matches: SecretMatch[]): Promise<SecretChoice> {
     return new Promise((resolve) => {
         const host = document.createElement("div");
         host.id = "pb-secret-host";
-        const shadow = host.attachShadow({ mode: "open" }); // isolates our styles from Claude's page
+        const shadow = host.attachShadow({ mode: "open" });
 
         const style = document.createElement("style");
-        style.textContent = `
-            .backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.5);
-                display: flex; align-items: center; justify-content: center; z-index: 2147483647; }
-            .card { background: #fff; color: #111; font: 14px system-ui, sans-serif;
-                border-radius: 12px; padding: 20px; width: min(420px, 90vw); }
-            h2 { margin: 0 0 8px; font-size: 16px; }
-            ul { padding-left: 18px; margin: 8px 0 16px; }
-            code { font-family: ui-monospace, monospace; }
-            .actions { display: flex; gap: 8px; justify-content: flex-end; }
-            button { padding: 8px 12px; border-radius: 8px; border: 1px solid #ccc;
-                background: #f5f5f5; cursor: pointer; }
-            button.primary { background: #b91c1c; color: #fff; border-color: #b91c1c; }
-    `;
+        style.textContent = STYLES;
 
         const backdrop = document.createElement("div");
         backdrop.className = "backdrop";
@@ -51,11 +119,12 @@ export function askAboutSecrets(matches: SecretMatch[]): Promise<SecretChoice> {
         const makeButton = (
             label: string,
             choice: SecretChoice,
-            primary = false,
+            danger = false,
         ) => {
             const btn = document.createElement("button");
+            btn.type = "button";
             btn.textContent = label;
-            if (primary) btn.className = "primary";
+            if (danger) btn.className = "danger";
             btn.addEventListener("click", () => {
                 host.remove();
                 resolve(choice);
