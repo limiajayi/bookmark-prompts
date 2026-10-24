@@ -1,9 +1,10 @@
 import { diagnose, logDiagnosis } from "@/utils/diagnose";
+import { confirmSecrets, findExistingId } from "@/utils/secretGuard";
 import { getChatId, getPairForResponse } from "../utils/extract";
 import { hashPair } from "../utils/hash";
 import { HOST_ATTR, SELECTORS } from "../utils/selectors";
 import { whenFinished } from "../utils/settle";
-import { hasBookmark, removeBookmark, saveBookmark } from "../utils/storage";
+import { removeBookmark, saveBookmark } from "../utils/storage";
 
 type State = "waiting" | "ready" | "saved" | "error";
 
@@ -56,6 +57,11 @@ function createButton(messageEl: HTMLElement): HTMLElement {
     shadow.append(style, button);
 
     let state: State = "waiting";
+    // The id of the bookmark this button saved or found. It can differ from the
+    // hash of the page text when the user chose "Save redacted".
+    let savedId: string | null = null;
+    // True while the secret modal is open, so a second click can't open another.
+    let busy = false;
 
     function setState(next: State) {
         state = next;
@@ -68,37 +74,49 @@ function createButton(messageEl: HTMLElement): HTMLElement {
     setState("waiting");
 
     button.addEventListener("click", async () => {
+        if (busy) return;
+
+        // Removing doesn't need the secret check, so handle it first.
+        if (state === "saved" && savedId) {
+            await removeBookmark(savedId);
+            savedId = null;
+            setState("ready");
+            return;
+        }
+
         // Read everything at click time: the page is an SPA, so the URL and
         // DOM can change underneath us.
         const pair = getPairForResponse(messageEl);
         const chatId = getChatId();
         if (!pair || !chatId) return setState("error");
 
-        const id = await hashPair(pair.prompt, pair.response);
+        busy = true;
+        try {
+            const toSave = await confirmSecrets(pair);
+            if (!toSave) return; // user cancelled, so the button stays "Bookmark"
 
-        if (state === "saved") {
-            await removeBookmark(id);
-            setState("ready");
-            return;
+            // Hash what we're actually saving, so the id matches the stored text.
+            const id = await hashPair(toSave.prompt, toSave.response);
+            await saveBookmark({
+                id,
+                chatId,
+                chatUrl: `${location.origin}/chat/${chatId}`,
+                ...toSave,
+                savedAt: Date.now(),
+            });
+            savedId = id;
+            setState("saved");
+        } finally {
+            busy = false;
         }
-
-        await saveBookmark({
-            id,
-            chatId,
-            chatUrl: `${location.origin}/chat/${chatId}`,
-            ...pair,
-            savedAt: Date.now(),
-        });
-        setState("saved");
     });
 
     // Enable the button once the response has stopped changing.
-    // (The host is already in the DOM before this runs, see injectButtons.)
     whenFinished(messageEl).then(async () => {
         const pair = getPairForResponse(messageEl);
         if (!pair) return setState("error");
-        const id = await hashPair(pair.prompt, pair.response);
-        setState((await hasBookmark(id)) ? "saved" : "ready");
+        savedId = await findExistingId(pair);
+        setState(savedId ? "saved" : "ready");
     });
 
     return host;
