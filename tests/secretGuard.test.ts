@@ -124,5 +124,67 @@ describe("hashing the redacted pair", () => {
 });
 
 describe("findExistingId", () => {
-    it("returns the original id when the original pair is saved", () => {});
+    it("returns the original id when the original pair is saved", async () => {
+        // Given the original pair is in storage
+        const originalId = await hashPair(dirtyPair.prompt, dirtyPair.response);
+        vi.mocked(hasBookmark).mockImplementation(
+            async (id) => id === originalId,
+        );
+
+        // When we look for an existing bookmark
+        const result = await findExistingId(dirtyPair);
+
+        // Then the original id is returned
+        expect(result).toBe(originalId);
+    });
+
+    it("returns the redacted id when only the redacted version is saved", async () => {
+        // Given only the redacted version is in storage
+        const redactedId = await hashPair(
+            redactedPair.prompt,
+            redactedPair.response,
+        );
+        vi.mocked(hasBookmark).mockImplementation(
+            async (id) => id === redactedId,
+        );
+
+        // When we look for an existing bookmark for the original page text
+        const result = await findExistingId(dirtyPair);
+
+        // Then the redacted id is returned, so the button shows "Bookmarked"
+        expect(result).toBe(redactedId);
+    });
+
+    it("returns null when neither version is saved", async () => {
+        // Given nothing is in storage
+        // When we look for an existing bookmark
+        const result = await findExistingId(dirtyPair);
+
+        // Then null is returned, so the button shows "Bookmark"
+        expect(result).toBeNull();
+    });
+
+    it("checks the original id first and stops when it is found", async () => {
+        // Given the original pair is saved
+        const originalId = await hashPair(dirtyPair.prompt, dirtyPair.response);
+        vi.mocked(hasBookmark).mockImplementation(
+            async (id) => id === originalId,
+        );
+
+        // When we look for an existing bookmark
+        await findExistingId(dirtyPair);
+
+        // Then storage is only queried once
+        expect(hasBookmark).toHaveBeenCalledTimes(1);
+    });
+
+    it("skips the redacted lookup for a pair with no secrets", async () => {
+        // Given a clean pair that is not saved
+        // When we look for an existing bookmark
+        const result = await findExistingId(cleanPair);
+
+        // Then only one lookup happens, because the redacted text is identical
+        expect(result).toBeNull();
+        expect(hasBookmark).toHaveBeenCalledTimes(1);
+    });
 });
