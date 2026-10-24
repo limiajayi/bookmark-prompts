@@ -43,7 +43,6 @@ describe("confirmSecrets", () => {
 
     it("shows the modal when the prompt contains a secret", async () => {
         // Given a pair where only the prompt has a secret
-        console.log(vi.isMockFunction(askAboutSecrets));
         vi.mocked(askAboutSecrets).mockResolvedValue("save");
 
         // When we run the check

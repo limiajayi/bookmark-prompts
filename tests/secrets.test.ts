@@ -252,8 +252,6 @@ describe("redactSecrets", () => {
         // When we redact it and scan the result
         const redacted = redactSecrets(text);
 
-        console.log(redacted);
-
         // Then scanning the redacted text finds nothing
         expect(findSecrets(redacted)).toEqual([]);
     });
