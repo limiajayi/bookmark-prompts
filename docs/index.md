@@ -1,4 +1,4 @@
-# Privacy Policy for Prompts Bookmarks
+# Privacy Policy for Bookmark Propmts
 
 **Last updated:** 24/10/2026
 
