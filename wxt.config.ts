@@ -8,5 +8,12 @@ export default defineConfig({
         // "storage" lets us use chrome.storage.local. That's the only permission.
         permissions: ["storage"],
         version: "1.0.0",
+        icons: {
+            128: "icon/128.png",
+        },
+    },
+    zip: {
+        includeSources: ["README.md", "pnpm-lock.yaml", "public/icon/**"],
+        excludeSources: ["playwright/.auth/**", ".env*"],
     },
 });
