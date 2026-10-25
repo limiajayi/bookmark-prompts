@@ -1,8 +1,8 @@
 {
-    "name": "prompt-bookmarks",
-    "description": "Bookmark Claude prompt and response pairs, stored locally.",
+    "name": "Bookmark Prompts",
+    "description": "Bookmark prompts and responses on claude.ai. All prompts and responses are saved locally, to your own device",
     "private": true,
-    "version": "0.1.0",
+    "version": "1.0.0",
     "type": "module",
     "scripts": {
         "dev": "wxt",
