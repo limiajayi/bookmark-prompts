@@ -54,11 +54,7 @@ export function diagnose(): Diagnosis {
 }
 
 export function logDiagnosis(d: Diagnosis): void {
-    const EXT_NAME = "[prompt-bookmarks]";
-    if (d.problems.length === 0) {
-        console.debug(`${EXT_NAME} Selectors look fine`, d);
-        return;
-    }
+    const EXT_NAME = "[bookmark-prompts]";
 
     console.group(
         `${EXT_NAME} Possible problem. claude.ai's markup may have changed: check utils/selectors.ts`,

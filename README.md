@@ -17,7 +17,7 @@ pnpm install
 pnpm build
 ```
 
-- Open [chrome://extensions](chrome://extensions)
+- Open `chrome://extensions`
 - Switch on **Developer mode**
 - Click **Load unpacked** and choose `.output/chrome-mv3`.
 
@@ -28,7 +28,7 @@ pnpm install
 pnpm build:firefox
 ```
 
-- Open [about:debugging#/runtime/this-firefox](about:debugging#/runtime/this-firefox)
+- Open `about:debugging#/runtime/this-firefox`
 - Click on **Load Temporary Add-on**
 - Open `.output/firefox-mv2/manifest.json`
 
