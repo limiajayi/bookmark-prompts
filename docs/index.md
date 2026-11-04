@@ -1,6 +1,6 @@
 # Privacy Policy for Bookmark Propmts
 
-**Last updated:** 24/10/2026
+**Last updated:** 04/11/2026
 
 Prompts Bookmarks is a browser extension for Chrome and Firefox that lets you bookmark prompts and responses on claude.ai and save them for later. This policy explains what the extension stores, where it stores it, and what it doesn't do.
 
@@ -51,4 +51,4 @@ If this policy changes, I'll update the "Last updated" date above.
 
 ## Contact
 
-Questions about this policy? Email me at `limiajayi@gmail.com`.
+Questions about this policy? Email me at `temicodesjs@gmail.com`.

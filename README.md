@@ -8,7 +8,7 @@ Chrome extension (Manifest V3, built with WXT) that bookmarks a Claude prompt an
 
 ## Privacy Policy
 
-The privacy policy can be found here: [privacy policy](https://limiajayi.github.io/prompts-bookmark-extension/privacy-policy)
+The privacy policy can be found here: [privacy policy](https://limiajayi.github.io/bookmark-prompts/)
 
 ## Run it
 
