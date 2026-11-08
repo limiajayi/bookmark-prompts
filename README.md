@@ -1,6 +1,6 @@
 # Prompts Bookmarks Extension
 
-Chrome extension (Manifest V3, built with WXT) that bookmarks a Claude prompt and its response from claude.ai. Everything is stored locally with `chrome.storage.local`.
+[Chrome extension](https://chromewebstore.google.com/detail/mlkhcmalnabbdceklhjpelhicnedeppg?utm_source=item-share-cb) (Manifest V3, built with WXT) that bookmarks a Claude prompt and its response from claude.ai. Everything is stored locally with `chrome.storage.local`.
 
 <img src="./demos/demo.gif" alt="Demo of the extension in action" />
 
