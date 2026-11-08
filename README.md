@@ -2,7 +2,7 @@
 
 Chrome extension (Manifest V3, built with WXT) that bookmarks a Claude prompt and its response from claude.ai. Everything is stored locally with `chrome.storage.local`.
 
-<img src="./demos/demo.gif" alt="Demo of the extension in action" width="700" />
+<img src="./demos/demo.gif" alt="Demo of the extension in action" />
 
 [![Architecture diagram of limiajayi/prompts-bookmark-extension](https://gitdiagram.com/limiajayi/prompts-bookmark-extension/diagram.png)](https://gitdiagram.com/limiajayi/prompts-bookmark-extension?utm_source=readme&utm_medium=picture)
 
